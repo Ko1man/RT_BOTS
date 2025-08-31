@@ -7,8 +7,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const bot = app.get<Telegraf>(getBotToken());
-  app.use(bot.webhookCallback('/telegram/WEBHOOK'));
-  
+  app.use(bot.webhookCallback('/telegram/hookpath'));
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
