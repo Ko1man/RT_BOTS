@@ -14,7 +14,6 @@ import { BotModule } from './bot/bot.module';
       webhook: {
         domain: 'https://rt-bots.onrender.com',
         hookPath: 'telegram/hookpath',
-        port: Number(process.env.PORT) || 3000,
       }
     }
   }), BotModule],
