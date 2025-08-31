@@ -13,7 +13,7 @@ import { BotModule } from './bot/bot.module';
       dropPendingUpdates: true,
       webhook: {
         domain: 'https://rt-bots.onrender.com',
-        hookPath: 'telegram/hookpath',
+        hookPath: '/telegram/hookpath',
       }
     }
   }), BotModule],
