@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Ctx, Hears, Update, On } from 'nestjs-telegraf';
+import { Ctx, Hears, Update, On, Start } from 'nestjs-telegraf';
 import { Context } from 'telegraf';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -15,6 +15,21 @@ export class BotService {
   private readonly logger = new Logger(BotService.name);
 
   constructor(private readonly prisma: PrismaService) {}
+
+  @Start()
+    async start(@Ctx() ctx: MyContext) {
+    const chatId = ctx.from?.id?.toString();
+    this.logger.log(`Пользователь ${ctx.from?.username} нажал /start (${chatId})`);
+
+    await ctx.reply('Привет! Выберите действие:', {
+        reply_markup: {
+        keyboard: [
+            ['Регистрация', 'Меню']  // кнопки для выбора
+        ],
+        resize_keyboard: true
+        }
+    });
+}
 
   @Hears('Регистрация')
   async askName(@Ctx() ctx: MyContext) {
