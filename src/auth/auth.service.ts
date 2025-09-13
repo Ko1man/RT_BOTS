@@ -52,6 +52,7 @@ export class AuthService {
                 fullName,
                 phone,
                 birthday,
+                groupID: dto.groupID,
             },
         });
 
