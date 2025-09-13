@@ -3,6 +3,7 @@ import {
     IsDate,
     IsEmail,
     IsNotEmpty,
+    IsOptional,
     IsString,
     Max,
     MaxLength,
@@ -36,5 +37,7 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'birthday should not be empty' })
     birthday: Date;
 
+    @IsOptional()
+    @IsString({ message: 'groupID should be string' })
     groupID?: string;
 }
