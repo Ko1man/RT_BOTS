@@ -1,0 +1,40 @@
+import {
+  Controller,
+  Post,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  Req,
+  BadRequestException,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
+import { UserService } from './user.service';
+import { avatarMulterOptions } from 'src/utils/fileUpload.util';
+import { Auth } from 'src/decorators/auth.decorator';
+
+@Controller('user')
+export class UserController {
+  constructor(private readonly usersService: UserService) {}
+
+  @Post('avatar')
+  @Auth()
+  @UseInterceptors(FileInterceptor('avatar', avatarMulterOptions))
+  async uploadAvatar(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
+    if (!file) throw new BadRequestException('File is required');
+
+    // Получаем id пользователя из payload JWT — зависит от того, что ты кладёшь в payload (sub / id)
+    const userId = req.user?.sub || req.user?.id;
+    if (!userId) throw new BadRequestException('User not found in request');
+
+    const avatarUrl = `/uploads/avatars/${file.filename}`;
+
+    const updatedUser = await this.usersService.updateAvatar(userId, avatarUrl);
+
+    return {
+      message: 'Avatar uploaded successfully',
+      avatar: avatarUrl,
+      user: { id: updatedUser.id, avatar: updatedUser.avatar },
+    };
+  }
+}

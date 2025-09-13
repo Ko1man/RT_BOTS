@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Group {
+  id String @id @unique @default(uuid())
+  name String @unique
+  updatedAt DateTime @default(now()) @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  User User[]
+  userID String? 
+
+  @@map("groups")
+  
+}
+
+model User{
+  id String @id @unique @default(uuid())
+  fullName String 
+  name String
+  phone String
+  email String @unique()
+  password String
+  role ROLE @default(STUDENT)
+  avatar String?
+  birthday DateTime
+
+  group     Group?   @relation(fields: [groupID], references: [id])
+  groupID   String? 
+
+  updatedAt DateTime @default(now()) @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+enum ROLE{
+  TEACHER
+  STUDENT
+  ADMIN
+  DISPETCHER
+  CURATOR
+}
