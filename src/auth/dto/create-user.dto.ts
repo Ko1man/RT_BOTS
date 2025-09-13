@@ -35,4 +35,6 @@ export class CreateUserDto {
     @Type(() => Date)
     @IsNotEmpty({ message: 'birthday should not be empty' })
     birthday: Date;
+
+    groupId?: string;
 }
