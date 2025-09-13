@@ -36,5 +36,5 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'birthday should not be empty' })
     birthday: Date;
 
-    groupId?: string;
+    groupID?: string;
 }
