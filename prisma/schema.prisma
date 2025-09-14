@@ -34,10 +34,29 @@ model User{
   group     Group?   @relation(fields: [groupID], references: [id])
   groupID   String? 
 
+  news     News?   @relation(fields: [newsID], references: [id])
+  newsID   String? 
+
   updatedAt DateTime @default(now()) @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("users")
+}
+
+model News{
+  id String @id @unique @default(uuid())
+  title String
+  views Int  @default(0)
+  short_description String
+  full_description String
+  news_photo String[] @default([])
+
+  user User[]
+  userId String?
+
+  updatedAt DateTime @default(now()) @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
 }
 
 enum ROLE{
