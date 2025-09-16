@@ -60,4 +60,9 @@ export class UserController {
     async getUserById(@CurrentUser('id') id: string) {
         return this.usersService.getUserById(id);
     }
+
+    @Get('get-all')
+    async getAllUsers() {
+        return this.usersService.getAll();
+    }
 }

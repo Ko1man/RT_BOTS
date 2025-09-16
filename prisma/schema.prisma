@@ -16,8 +16,9 @@ model Group {
   User User[]
   userID String? 
 
+  attendances  Attendance[]
+
   @@map("groups")
-  
 }
 
 model User{
@@ -36,6 +37,8 @@ model User{
 
   news     News?   @relation(fields: [newsID], references: [id])
   newsID   String? 
+
+  attendances  Attendance[]
 
   updatedAt DateTime @default(now()) @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
@@ -57,6 +60,35 @@ model News{
   updatedAt DateTime @default(now()) @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
 
+}
+
+model LessonNumber{
+  id String @id @unique @default(uuid())
+  number Int
+  shift Int
+
+  attendances  Attendance[]
+
+  updatedAt DateTime @default(now()) @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+}
+
+
+model Attendance{
+  id String @id @unique @default(uuid())
+  is_on_lesson Boolean @default(false)
+
+  userId      String
+  groupId     String
+  lessonNumberId String
+
+  user         User   @relation(fields: [userId], references: [id])
+  group        Group  @relation(fields: [groupId], references: [id])
+  lessonNumber LessonNumber @relation(fields: [lessonNumberId], references: [id])
+
+
+  updatedAt DateTime @default(now()) @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
 }
 
 enum ROLE{

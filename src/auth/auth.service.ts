@@ -33,6 +33,9 @@ export class AuthService {
         const { email, password, fullName, phone, birthday } = dto;
         const parts = fullName.trim().split(/\s+/);
         const name = parts[1] || fullName;
+        const birthdayStr = typeof birthday === 'string' ? birthday : '';
+        const [day, month, year] = birthdayStr.split('.').map(Number);
+        const parsedBirthday = new Date(year, month - 1, day);
 
         const existUser = await this.prismaService.user.findUnique({
             where: {
@@ -51,7 +54,7 @@ export class AuthService {
                 name,
                 fullName,
                 phone,
-                birthday,
+                birthday: parsedBirthday,
                 groupID: dto.groupID,
             },
         });

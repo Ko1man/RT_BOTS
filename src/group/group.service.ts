@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateGroupDto } from './dto/create-group.dto';
+import { AddUsersToGroupDto } from './dto/addUsers.dto';
 
 @Injectable()
 export class GroupService {
@@ -34,5 +35,27 @@ export class GroupService {
             }
             throw error;
         }
+    }
+
+    async addUserToGroup(dto: AddUsersToGroupDto){
+        const {groupID, userIDs} = dto
+
+        return await this.prisma.user.updateMany({
+            where: {
+                id: { in: userIDs }
+            },
+            data: {
+                groupID: groupID
+            }
+        })
+    }
+
+    async getGroupById(id: string){
+        return await this.prisma.group.findUnique({
+            where: {id},
+            include: {
+                User: true
+            }
+        })
     }
 }

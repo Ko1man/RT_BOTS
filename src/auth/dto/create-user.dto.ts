@@ -5,6 +5,7 @@ import {
     IsNotEmpty,
     IsOptional,
     IsString,
+    Matches,
     Max,
     MaxLength,
     Min,
@@ -19,8 +20,8 @@ export class CreateUserDto {
 
     @IsString({ message: 'phone shoud be string' })
     @IsNotEmpty({ message: 'phone should not be empty' })
-    @MaxLength(11, { message: 'phone should be 11 numbers' })
-    @MinLength(11)
+    @MaxLength(12, { message: 'phone should be 11 numbers' })
+    @MinLength(12)
     phone: string;
 
     @IsString({ message: 'password shoud be string' })
@@ -32,10 +33,9 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'email should not be empty' })
     email: string;
 
-    @IsDate({ message: 'birthday should be date' })
-    @Type(() => Date)
     @IsNotEmpty({ message: 'birthday should not be empty' })
-    birthday: Date;
+    @Matches(/^\d{2}\.\d{2}\.\d{4}$/, { message: 'birthday must be in format DD.MM.YYYY' })
+    birthday: string;
 
     @IsOptional()
     @IsString({ message: 'groupID should be string' })

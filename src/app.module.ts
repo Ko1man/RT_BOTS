@@ -5,6 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { NewsModule } from './news/news.module';
+import { AttendenceModule } from './attendence/attendence.module';
+import { LessonModule } from './lesson/lesson.module';
 
 @Module({
     imports: [
@@ -14,6 +16,8 @@ import { NewsModule } from './news/news.module';
         AuthModule,
         UserModule,
         NewsModule,
+        AttendenceModule,
+        LessonModule,
     ],
     controllers: [],
     providers: [],
