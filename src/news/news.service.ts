@@ -49,7 +49,6 @@ export class NewsService {
         const news = await this.prisma.news.delete({
             where: {id}
         })
-
         return news;
     }
 }
