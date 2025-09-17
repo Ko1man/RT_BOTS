@@ -1,4 +1,4 @@
-import { IsArray, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsOptional, IsString } from "class-validator";
 
 export class CreateAttendanceDto{
     @IsString()
@@ -9,4 +9,8 @@ export class CreateAttendanceDto{
 
     @IsArray()
     userIds: string[]
+
+    @IsOptional()
+    @IsBoolean()
+    is_on_lesson: boolean
 }

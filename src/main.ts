@@ -28,6 +28,7 @@ async function bootstrap() {
         preflightContinue: false,
     });
 
-    await app.listen(process.env.PORT ?? 3001);
+    const port = process.env.PORT || 3000; // 3000 только локально
+    await app.listen(port);
 }
 bootstrap();
