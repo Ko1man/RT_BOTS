@@ -5,15 +5,12 @@ import { AddUsersToGroupDto } from './dto/addUsers.dto';
 
 @Injectable()
 export class GroupService {
-    constructor(
-        private readonly prisma: PrismaService,
-    ) {}
-
+    constructor(private readonly prisma: PrismaService) {}
 
     async getAllGroups() {
         const groups = await this.prisma.group.findMany();
 
-        if(groups.length === 0) {
+        if (groups.length === 0) {
             throw new NotFoundException('Не найдено ни одной группы.');
         }
 
@@ -21,8 +18,8 @@ export class GroupService {
     }
 
     async createGroup(dto: CreateGroupDto) {
-        const {name} = dto;
-        
+        const { name } = dto;
+
         try {
             return this.prisma.group.create({
                 data: {
@@ -30,32 +27,21 @@ export class GroupService {
                 },
             });
         } catch (error) {
-            if(error.code === 'P2002') {
-                throw new ConflictException('Группа с таким названием уже существует.')
+            if (error.code === 'P2002') {
+                throw new ConflictException('Группа с таким названием уже существует.');
             }
             throw error;
         }
     }
 
-    async addUserToGroup(dto: AddUsersToGroupDto){
-        const {groupID, userIDs} = dto
-
-        return await this.prisma.user.updateMany({
-            where: {
-                id: { in: userIDs }
-            },
+    async addUserToGroup(dto: AddUsersToGroupDto) {
+        const { userId, groupId } = dto;
+        const addUser = await this.prisma.userGroup.create({
             data: {
-                groupID: groupID
-            }
-        })
-    }
-
-    async getGroupById(id: string){
-        return await this.prisma.group.findUnique({
-            where: {id},
-            include: {
-                User: true
-            }
-        })
+                userId: userId,
+                groupId: groupId,
+            },
+        });
+        return addUser;
     }
 }

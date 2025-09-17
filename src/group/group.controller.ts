@@ -21,9 +21,4 @@ export class GroupController {
     async addUsersToGroup(@Body() dto: AddUsersToGroupDto) {
         return this.groupService.addUserToGroup(dto);
     }
-
-    @Get('by-id/:id')
-    async getById(@Param('id') id: string) {
-        return await this.groupService.getGroupById(id);
-    }
 }

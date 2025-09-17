@@ -35,7 +35,7 @@ export class UserService {
     async getUserByEmail(email: string) {
         const user = await this.prisma.user.findUnique({
             where: { email: email },
-            include: { group: true },
+            include: { groups: true },
         });
         return user;
     }
@@ -43,7 +43,7 @@ export class UserService {
     async getUserById(id: string) {
         const user = await this.prisma.user.findUnique({
             where: { id },
-            include: { group: true },
+            include: { groups: true },
         });
         return user;
     }
@@ -70,7 +70,25 @@ export class UserService {
         return user;
     }
 
-    async getAll(){
-        return await this.prisma.user.findMany()
+    async getAll() {
+        return await this.prisma.user.findMany();
+    }
+
+    async getPendingStatus() {
+        return await this.prisma.user.findMany({
+            where: {
+                on_check: 'PENDING',
+            },
+            orderBy: { createdAt: 'asc' },
+        });
+    }
+
+    async reviewUsers(userID: string, status: 'APPROVED' | 'REJECTED') {
+        return await this.prisma.user.update({
+            where: { id: userID },
+            data: {
+                on_check: status,
+            },
+        });
     }
 }

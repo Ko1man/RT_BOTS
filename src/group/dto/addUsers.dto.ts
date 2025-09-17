@@ -1,9 +1,9 @@
-import { IsArray, IsString } from "class-validator";
+import { IsArray, IsString } from 'class-validator';
 
 export class AddUsersToGroupDto {
     @IsString()
-    groupID: string;
+    groupId: string;
 
-    @IsArray()
-    userIDs: string[];
+    @IsString()
+    userId: string;
 }

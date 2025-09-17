@@ -55,7 +55,6 @@ export class AuthService {
                 fullName,
                 phone,
                 birthday: parsedBirthday,
-                groupID: dto.groupID,
             },
         });
 
@@ -155,12 +154,15 @@ export class AuthService {
     }
 
     async validate(id: string) {
-        const user = this.prismaService.user.findUnique({
+        const user = await this.prismaService.user.findUnique({
             where: { id },
         });
+
         if (!user) {
             throw new NotFoundException();
         }
+
+        console.log(user)
         return user;
     }
 }
