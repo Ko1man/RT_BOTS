@@ -57,4 +57,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 
 /uploads
-.interner-key.json
+
+# Google Cloud credentials
+*.json
