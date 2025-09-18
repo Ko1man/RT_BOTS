@@ -13,6 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { isDev } from 'src/utils/isDev.utils';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from 'jsonwebtoken';
+import { MailService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
     constructor(
         private readonly prismaService: PrismaService,
         private readonly configServise: ConfigService,
+        private readonly mailer: MailService,
         private readonly jwtServise: JwtService,
     ) {
         this.COOKIE_DOMAIN = configServise.getOrThrow<string>('COOKIE_DOMAIN');
@@ -54,6 +56,7 @@ export class AuthService {
                 fullName,
                 phone,
                 birthday: parsedBirthday,
+                email_verified: false
             },
         });
 
@@ -66,7 +69,10 @@ export class AuthService {
             });
         }
 
-        return this.auth(res, user.id);
+        const code = await this.mailer.generateCode(email);
+        console.log(`Код для ${email}: ${code}`);
+
+        return { message: 'Пользователь создан, подтвердите email', userId: user.id };
     }
 
     async login(res: Response, dto: LoginDto) {
@@ -126,7 +132,7 @@ export class AuthService {
         return true;
     }
 
-    private auth(res: Response, id: string) {
+    public auth(res: Response, id: string) {
         const { accessToken, refreshToken } = this.generateTokens(id);
 
         this.setCookie(res, refreshToken, new Date(Date.now() + 1000 * 60 * 60 * 24 * 7));

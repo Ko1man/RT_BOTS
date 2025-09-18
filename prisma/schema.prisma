@@ -44,6 +44,7 @@ model User{
   avatar String?
   birthday DateTime
   on_check CHECK_STATUS @default(PENDING)
+  email_verified Boolean @default(false)
 
   groups UserGroup[]
 
@@ -103,6 +104,17 @@ model Attendance{
   createdAt DateTime @default(now()) @map("created_at")
 
   @@unique([userId, lessonNumberId, groupId])
+}
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  used      Boolean  @default(false)
+
+  @@index([email])
 }
 
 enum ROLE{

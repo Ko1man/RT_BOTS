@@ -8,6 +8,7 @@ import { NewsModule } from './news/news.module';
 import { AttendenceModule } from './attendence/attendence.module';
 import { LessonModule } from './lesson/lesson.module';
 import { FileModule } from './file/file.module';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { FileModule } from './file/file.module';
         AttendenceModule,
         LessonModule,
         FileModule,
+        MailerModule,
     ],
     controllers: [],
     providers: [],

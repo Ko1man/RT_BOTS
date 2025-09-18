@@ -1,10 +1,10 @@
 import { IsArray, IsBoolean, IsOptional, IsString } from "class-validator";
 
 export class CreateAttendanceDto{
-    @IsString()
+    @IsString({message: ('группа должна быть строкой')})
     groupId: string
 
-    @IsString()
+    @IsString({message: ('номер урока должен быть строкой')})
     lessonNumberId: string
 
     @IsArray()

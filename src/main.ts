@@ -28,7 +28,7 @@ async function bootstrap() {
         preflightContinue: false,
     });
 
-    const port = process.env.PORT || 3000; // 3000 только локально
+    const port = process.env.PORT || 8080; // 3000 только локально
     await app.listen(port);
 }
 bootstrap();

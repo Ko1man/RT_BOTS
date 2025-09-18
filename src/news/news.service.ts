@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateUserDto } from 'src/user/dto/updateUser.dto';
 import { UpdateNewsDto } from './dto/update-news.dto copy';
+import { StorageService } from 'src/storage/google-cloud.storage';
 
 @Injectable()
 export class NewsService {
