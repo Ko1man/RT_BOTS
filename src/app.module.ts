@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { NewsModule } from './news/news.module';
 import { AttendenceModule } from './attendence/attendence.module';
 import { LessonModule } from './lesson/lesson.module';
+import { FileModule } from './file/file.module';
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { LessonModule } from './lesson/lesson.module';
         NewsModule,
         AttendenceModule,
         LessonModule,
+        FileModule,
     ],
     controllers: [],
     providers: [],

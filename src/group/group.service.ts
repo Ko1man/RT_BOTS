@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { AddUsersToGroupDto } from './dto/addUsers.dto';
+import { ROLE } from '@prisma/client';
 
 @Injectable()
 export class GroupService {
@@ -43,5 +44,44 @@ export class GroupService {
             },
         });
         return addUser;
+    }
+
+    async getGroupById(id: string) {
+        const group = await this.prisma.group.findUnique({
+            where: { id },
+            include: {
+                users: true,
+                attendances: true,
+            },
+        });
+
+        if (!group) {
+            throw new NotFoundException('Группа не найдена.');
+        }
+
+        return group;
+    }
+
+    async getUsersByGroupId(groupId: string, role?: ROLE) {
+        return this.prisma.user.findMany({
+            where: {
+                groups: {
+                    some: {
+                        groupId,
+                    },
+                },
+                ...(role ? { role } : {}),
+            },
+            select: {
+                id: true,
+                fullName: true,
+                name: true,
+                phone: true,
+                email: true,
+                role: true,
+                avatar: true,
+                birthday: true,
+            },
+        });
     }
 }

@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAttendanceDto } from './dto/createAttendence.dto';
+import { UpdateAttendanceDto } from './dto/updateAttendance.dto';
 
 @Injectable()
 export class AttendenceService {
@@ -25,6 +26,16 @@ export class AttendenceService {
             throw new NotFoundException('Занятие не найденно');
         }
 
+        const users = await this.prisma.user.findMany({
+            where: { id: { in: userIds } },
+            select: { id: true },
+        });
+
+        const existingUserIds = users.map((u) => u.id);
+        if (existingUserIds.length !== userIds.length) {
+            throw new BadRequestException('Некоторые userIds не существуют');
+        }
+
         return await this.prisma.attendance.createMany({
             data: userIds.map((userId) => ({
                 userId,
@@ -36,11 +47,40 @@ export class AttendenceService {
         });
     }
 
-    async delete(ids: string[]){
+    async delete(ids: string[]) {
         return await this.prisma.attendance.deleteMany({
-            where : {
-                id: {in: ids}
-            }
-        })
+            where: {
+                id: { in: ids },
+            },
+        });
+    }
+
+    async updateAttendance(groupId: string, dto: UpdateAttendanceDto) {
+        const { userIds, lessonNumberId, is_on_lesson } = dto;
+
+        const attendances = await this.prisma.attendance.findMany({
+            where: {
+                groupId,
+                lessonNumberId,
+                userId: { in: userIds },
+            },
+        });
+
+        if (!attendances.length) {
+            throw new NotFoundException('Записи посещаемости не найдены');
+        }
+
+        const update = await this.prisma.attendance.updateMany({
+            where: {
+                groupId,
+                lessonNumberId,
+                userId: { in: userIds },
+            },
+            data: {
+                is_on_lesson,
+            },
+        });
+
+        return update;
     }
 }

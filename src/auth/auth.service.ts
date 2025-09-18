@@ -30,7 +30,7 @@ export class AuthService {
     }
 
     async register(res: Response, dto: CreateUserDto) {
-        const { email, password, fullName, phone, birthday } = dto;
+        const { email, password, fullName, phone, birthday, groupID } = dto;
         const parts = fullName.trim().split(/\s+/);
         const name = parts[1] || fullName;
         const birthdayStr = typeof birthday === 'string' ? birthday : '';
@@ -38,15 +38,14 @@ export class AuthService {
         const parsedBirthday = new Date(year, month - 1, day);
 
         const existUser = await this.prismaService.user.findUnique({
-            where: {
-                email,
-            },
+            where: { email },
         });
 
         if (existUser) {
             throw new ConflictException('User with this email already exists');
         }
 
+        // Создаём пользователя
         const user = await this.prismaService.user.create({
             data: {
                 email,
@@ -57,6 +56,15 @@ export class AuthService {
                 birthday: parsedBirthday,
             },
         });
+
+        if (groupID) {
+            await this.prismaService.userGroup.create({
+                data: {
+                    userId: user.id,
+                    groupId: groupID,
+                },
+            });
+        }
 
         return this.auth(res, user.id);
     }
@@ -162,7 +170,7 @@ export class AuthService {
             throw new NotFoundException();
         }
 
-        console.log(user)
+        console.log(user);
         return user;
     }
 }

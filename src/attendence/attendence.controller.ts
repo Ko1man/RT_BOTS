@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch, Post } from '@nestjs/common';
 import { AttendenceService } from './attendence.service';
 import { CreateAttendanceDto } from './dto/createAttendence.dto';
 import { DeleteAttendanceDto } from './dto/deleteAtt.dto';
+import { UpdateAttendanceDto } from './dto/updateAttendance.dto';
 
 @Controller('attendence')
 export class AttendenceController {
@@ -13,7 +14,12 @@ export class AttendenceController {
     }
 
     @Delete('delete')
-    async delete(@Body() dto: DeleteAttendanceDto){
-      return await this.attendenceService.delete(dto.ids)
+    async delete(@Body() dto: DeleteAttendanceDto) {
+        return await this.attendenceService.delete(dto.ids);
+    }
+
+    @Patch('update/:groupId')
+    async updateAttendance(@Param('groupId') groupId: string, @Body() dto: UpdateAttendanceDto) {
+        return this.attendenceService.updateAttendance(groupId, dto);
     }
 }
