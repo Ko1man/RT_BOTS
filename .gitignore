@@ -60,3 +60,5 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Google Cloud credentials
 *.json
+internet-key.json
+
