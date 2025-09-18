@@ -24,7 +24,6 @@
 
 .git
 .gitignore
-.internet-key.json
 
 # Node.js dependencies:
 
