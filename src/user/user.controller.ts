@@ -11,6 +11,7 @@ import {
     ForbiddenException,
     Param,
     UseGuards,
+    Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
@@ -21,6 +22,7 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 import { OnCheck } from 'src/decorators/onCheck.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guuard';
 import { CheckStatusGuard } from 'src/auth/guards/checkStatus.guard';
+import { ROLE } from '@prisma/client';
 
 @Controller('user')
 export class UserController {
@@ -60,9 +62,9 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard, CheckStatusGuard)
-    @Get('getUser/:id')
-    async getUserById(@CurrentUser('id') id: string) {
-        return this.usersService.getUserById(id);
+    @Get('getUser')
+    async getUserByIdForCurr(@CurrentUser('id') id: string) {
+        return this.usersService.getUserByIdForCurr(id);
     }
 
     @UseGuards(JwtAuthGuard, CheckStatusGuard)
@@ -94,5 +96,21 @@ export class UserController {
             throw new ForbiddenException('У вас нет прав доступа, обратитесь к администратору');
         }
         return this.usersService.reviewUsers(id, status);
+    }
+
+    @Get('search-users')
+    async searchUsers(
+        @Query('q') q: string,
+        @Query('role') role: ROLE[] | ROLE,
+        @Query('page') page = '1',
+        @Query('limit') limit = '20',
+    ) {
+        const roles = Array.isArray(role) ? role : role ? [role] : [];
+        return this.usersService.searchUsers(q || '', roles, +page, +limit);
+    }
+
+    @Get('get-user/:id')
+    async getUserById(@Param('id') id: string) {
+        return this.usersService.getUserById(id);
     }
 }

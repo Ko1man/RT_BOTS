@@ -3,7 +3,6 @@ import { AttendenceService } from './attendence.service';
 import { CreateAttendanceDto } from './dto/createAttendence.dto';
 import { DeleteAttendanceDto } from './dto/deleteAtt.dto';
 import { UpdateAttendanceDto } from './dto/updateAttendance.dto';
-import { CheckAttendanceDto } from './dto/check-attendance.dto';
 
 @Controller('attendence')
 export class AttendenceController {
@@ -15,8 +14,12 @@ export class AttendenceController {
     }
 
     @Get('by-lesson/:groupId/:lessonNumberId/:date')
-    async getAttendanceByLesson(@Param('groupId') groupId: string, @Param('lessonNumberId') lessonNumberId: string, @Param('date') date: string) {
-        return this.attendenceService.getAttendanceByLesson(groupId, lessonNumberId, date);
+    async getAttendanceByLesson(
+        @Param('groupId') groupId: string,
+        @Param('lessonNumberId') lessonNumber: number,
+        @Param('date') date: string,
+    ) {
+        return this.attendenceService.getAttendanceByLesson(groupId, lessonNumber, date);
     }
 
     @Post('create')
@@ -29,14 +32,13 @@ export class AttendenceController {
         return await this.attendenceService.delete(dto.ids);
     }
 
-       @Patch('update/:groupId')
+    @Patch('update/:groupId')
     async updateAttendance(@Param('groupId') groupId: string, @Body() dto: UpdateAttendanceDto) {
         return this.attendenceService.updateAttendance(groupId, dto);
     }
 
     @Post('upsert/:groupId')
     async upsertAttendance(@Param('groupId') groupId: string, @Body() dto: UpdateAttendanceDto) {
-        return this.attendenceService.upsertAttendance(groupId, dto);
-    }
-
+        return this.attendenceService.upsertAttendance(groupId, dto);
+    }
 }

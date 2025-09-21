@@ -23,7 +23,6 @@ export class AttendenceService {
                 }
             },
             include: {
-                lessonNumber: true,
                 user: {
                     select: {
                         id: true,
@@ -32,32 +31,13 @@ export class AttendenceService {
                     }
                 }
             },
-            orderBy: {
-                lessonNumber: {
-                    number: 'asc'
-                }
-            }
         });
 
         // Группируем по занятиям
-        const groupedByLesson = {};
-        attendances.forEach(att => {
-            if (!groupedByLesson[att.lessonNumberId]) {
-                groupedByLesson[att.lessonNumberId] = {
-                    lessonNumber: att.lessonNumber,
-                    attendances: []
-                };
-            }
-            groupedByLesson[att.lessonNumberId].attendances.push(att);
-        });
-
-        return {
-            hasData: attendances.length > 0,
-            attendances: groupedByLesson
-        };
+        return attendances
     }
 
-    async getAttendanceByLesson(groupId: string, lessonNumberId: string, date: string) {
+    async getAttendanceByLesson(groupId: string, lessonNumber: number, date: string) {
         const startDate = new Date(date);
         startDate.setHours(0, 0, 0, 0);
         
@@ -67,7 +47,7 @@ export class AttendenceService {
         return await this.prisma.attendance.findMany({
             where: {
                 groupId,
-                lessonNumberId,
+                lessonNumber,
                 createdAt: {
                     gte: startDate,
                     lte: endDate
@@ -86,7 +66,13 @@ export class AttendenceService {
     }
 
     async createAttendance(dto: CreateAttendanceDto) {
-        const { userIds, groupId, lessonNumberId, is_on_lesson } = dto;
+        const { userIds, groupId, lessonNumber, is_on_lesson } = dto;
+
+        const startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
+        
+        const endDate = new Date();
+        endDate.setHours(23, 59, 59, 999);
 
         const group = await this.prisma.group.findUnique({
             where: { id: groupId },
@@ -94,14 +80,6 @@ export class AttendenceService {
 
         if (!group) {
             throw new NotFoundException('группа не найдена');
-        }
-
-        const lessonNumber = await this.prisma.lessonNumber.findUnique({
-            where: { id: lessonNumberId },
-        });
-
-        if (!lessonNumber) {
-            throw new NotFoundException('Занятие не найденно');
         }
 
         const users = await this.prisma.user.findMany({
@@ -114,10 +92,24 @@ export class AttendenceService {
             throw new BadRequestException('Некоторые userIds не существуют');
         }
 
+        const exsistRows = await this.prisma.attendance.findMany({
+            where : {
+                lessonNumber,
+                groupId,
+                createdAt: {
+                    gte: startDate, // >= начало дня
+                    lte: endDate,
+                }
+            }
+        })
+        if(exsistRows.length > 0){
+            throw new BadRequestException('Запись для этой группы уже существует')
+        }
+
         return await this.prisma.attendance.createMany({
             data: userIds.map((userId) => ({
                 userId,
-                lessonNumberId,
+                lessonNumber,
                 groupId,
                 is_on_lesson,
             })),
@@ -134,7 +126,7 @@ export class AttendenceService {
     }
 
     async updateAttendance(groupId: string, dto: UpdateAttendanceDto) {
-        const { userIds, lessonNumberId, attendanceStatuses } = dto;
+        const { userIds, lessonNumber, attendanceStatuses } = dto;
 
         if (userIds.length !== attendanceStatuses.length) {
             throw new BadRequestException('Количество userIds и attendanceStatuses должно совпадать');
@@ -144,7 +136,7 @@ export class AttendenceService {
             this.prisma.attendance.updateMany({
                 where: {
                     groupId,
-                    lessonNumberId,
+                    lessonNumber,
                     userId,
                 },
                 data: {
@@ -158,7 +150,7 @@ export class AttendenceService {
 
     // Альтернативный метод для массового создания/обновления
     async upsertAttendance(groupId: string, dto: UpdateAttendanceDto) {
-        const { userIds, lessonNumberId, attendanceStatuses } = dto;
+        const { userIds, lessonNumber, attendanceStatuses } = dto;
 
         if (userIds.length !== attendanceStatuses.length) {
             throw new BadRequestException('Количество userIds и attendanceStatuses должно совпадать');
@@ -167,9 +159,8 @@ export class AttendenceService {
         const operations = userIds.map((userId, index) => 
             this.prisma.attendance.upsert({
                 where: {
-                    userId_lessonNumberId_groupId: {
+                    userId_groupId: {
                         userId,
-                        lessonNumberId,
                         groupId,
                     },
                 },
@@ -178,7 +169,7 @@ export class AttendenceService {
                 },
                 create: {
                     userId,
-                    lessonNumberId,
+                    lessonNumber,
                     groupId,
                     is_on_lesson: attendanceStatuses[index],
                 },

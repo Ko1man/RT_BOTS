@@ -6,7 +6,6 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { NewsModule } from './news/news.module';
 import { AttendenceModule } from './attendence/attendence.module';
-import { LessonModule } from './lesson/lesson.module';
 import { FileModule } from './file/file.module';
 import { MailerModule } from './mailer/mailer.module';
 
@@ -19,7 +18,6 @@ import { MailerModule } from './mailer/mailer.module';
         UserModule,
         NewsModule,
         AttendenceModule,
-        LessonModule,
         FileModule,
         MailerModule,
     ],

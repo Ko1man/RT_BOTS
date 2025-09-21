@@ -1,7 +1,8 @@
-import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileService } from './file.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { StorageService } from 'src/storage/google-cloud.storage';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guuard';
 
 @Controller('file')
 export class FileController {
@@ -10,10 +11,11 @@ export class FileController {
         private readonly storage: StorageService,
     ) {}
 
+    @UseGuards(JwtAuthGuard)
     @Post('upload')
     @UseInterceptors(FileInterceptor('file'))
-    async upload(@UploadedFile() file: Express.Multer.File) {
-        const url = await this.storage.uploadFile(file);
-        return { url };
+    async uploadAvatar(@UploadedFile() file: Express.Multer.File, @Req() req) {
+        const userId = req.user.id;
+        return this.storage.uploadAvatar(file, userId);
     }
 }

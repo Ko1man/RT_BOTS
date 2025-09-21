@@ -75,16 +75,6 @@ model News{
 
 }
 
-model LessonNumber{
-  id String @id @unique @default(uuid())
-  number Int
-  shift Int
-
-  attendances  Attendance[]
-
-  updatedAt DateTime @default(now()) @map("updated_at")
-  createdAt DateTime @default(now()) @map("created_at")
-}
 
 
 model Attendance{
@@ -93,17 +83,16 @@ model Attendance{
 
   userId      String
   groupId     String
-  lessonNumberId String
+  lessonNumber Int
 
   user         User   @relation(fields: [userId], references: [id])
   group        Group  @relation(fields: [groupId], references: [id])
-  lessonNumber LessonNumber @relation(fields: [lessonNumberId], references: [id])
 
 
   updatedAt DateTime @default(now()) @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@unique([userId, lessonNumberId, groupId])
+  @@unique([userId, groupId])
 }
 
 model VerificationCode {
@@ -128,5 +117,4 @@ enum ROLE{
 enum CHECK_STATUS{
   APPROVED
   PENDING
-  REJECTED
 }

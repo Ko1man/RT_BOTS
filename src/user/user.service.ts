@@ -4,6 +4,7 @@ import { unlink } from 'fs/promises';
 import { join } from 'path';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { hash } from 'argon2';
+import { Prisma, ROLE } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -40,7 +41,7 @@ export class UserService {
         return user;
     }
 
-    async getUserById(id: string) {
+    async getUserByIdForCurr(id: string) {
         const user = await this.prisma.user.findUnique({
             where: { id },
             include: { groups: true },
@@ -90,5 +91,57 @@ export class UserService {
                 on_check: status,
             },
         });
+    }
+
+    async searchUsers(query: string, roles: ROLE[], page = 1, limit = 20) {
+        const skip = (page - 1) * limit;
+
+        const where = {
+            AND: [
+                roles.length > 0 ? { role: { in: roles as any[] } } : {},
+                {
+                    OR: [
+                        { fullName: { contains: query, mode: 'insensitive' as Prisma.QueryMode } },
+                        { name: { contains: query, mode: 'insensitive' as Prisma.QueryMode } },
+                        { phone: { contains: query, mode: 'insensitive' as Prisma.QueryMode } },
+                        { email: { contains: query, mode: 'insensitive' as Prisma.QueryMode } },
+                    ],
+                },
+            ],
+        };
+
+        const [items, total] = await Promise.all([
+            this.prisma.user.findMany({
+                skip,
+                take: limit,
+                where,
+                select: {
+                    id: true,
+                    fullName: true,
+                    email: true,
+                    phone: true,
+                    role: true,
+                    avatar: true,
+                },
+                orderBy: { createdAt: 'desc' },
+            }),
+            this.prisma.user.count({ where }),
+        ]);
+
+        return { items, total, page, limit };
+    }
+
+    async getUserById(id: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            include: {
+                groups: {
+                    include: {
+                        group: true,
+                    },
+                },
+            },
+        });
+        return user;
     }
 }

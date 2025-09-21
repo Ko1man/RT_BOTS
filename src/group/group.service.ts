@@ -50,7 +50,11 @@ export class GroupService {
         const group = await this.prisma.group.findUnique({
             where: { id },
             include: {
-                users: true,
+                users: {
+                    include :{
+                        user: true
+                    }
+                },
                 attendances: true,
             },
         });
