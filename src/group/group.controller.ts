@@ -3,6 +3,7 @@ import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { AddUsersToGroupDto } from './dto/addUsers.dto';
 import { ROLE } from '@prisma/client';
+import { GetAttendanceDto } from './dto/get-info-attendance.dto';
 
 @Controller('groups')
 export class GroupController {

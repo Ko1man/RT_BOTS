@@ -4,7 +4,9 @@ import { unlink } from 'fs/promises';
 import { join } from 'path';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { hash } from 'argon2';
-import { Prisma, ROLE } from '@prisma/client';
+import { CHECK_STATUS, Prisma, ROLE } from '@prisma/client';
+import { UpdateUserStatusDto } from './dto/update-status.dto';
+import { FilterUsersDto } from './dto/filter-users.dto';
 
 @Injectable()
 export class UserService {
@@ -75,24 +77,6 @@ export class UserService {
         return await this.prisma.user.findMany();
     }
 
-    async getPendingStatus() {
-        return await this.prisma.user.findMany({
-            where: {
-                on_check: 'PENDING',
-            },
-            orderBy: { createdAt: 'asc' },
-        });
-    }
-
-    async reviewUsers(userID: string, status: 'APPROVED' | 'REJECTED') {
-        return await this.prisma.user.update({
-            where: { id: userID },
-            data: {
-                on_check: status,
-            },
-        });
-    }
-
     async searchUsers(query: string, roles: ROLE[], page = 1, limit = 20) {
         const skip = (page - 1) * limit;
 
@@ -143,5 +127,54 @@ export class UserService {
             },
         });
         return user;
+    }
+
+    async getPendingUsersWithFilter(dto: FilterUsersDto) {
+        const page = dto.page ?? 1;
+        const limit = dto.limit ?? 10;
+
+        const where: any = { on_check: CHECK_STATUS.PENDING };
+        if (dto.roles && dto.roles.length > 0) {
+            where.role = { in: dto.roles };
+        }
+
+        const [data, total] = await this.prisma.$transaction([
+            this.prisma.user.findMany({
+                where,
+                skip: (page - 1) * limit,
+                take: limit,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    groups: {
+                        include: {
+                            group: true
+                        }
+                    }
+                }
+            }),
+            this.prisma.user.count({ where }),
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
+    }
+
+    async updateUserStatus(dto: UpdateUserStatusDto) {
+        const user = await this.prisma.user.findUnique({ where: { id: dto.userId } });
+        if (!user) throw new NotFoundException('Заявка не найдена.');
+
+        if (dto.status === CHECK_STATUS.APPROVED) {
+            return this.prisma.user.update({
+                where: { id: dto.userId },
+                data: { on_check: CHECK_STATUS.APPROVED },
+            });
+        }
+
+        return this.prisma.user.delete({ where: { id: dto.userId } });
     }
 }

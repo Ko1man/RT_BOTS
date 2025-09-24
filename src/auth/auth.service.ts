@@ -56,7 +56,7 @@ export class AuthService {
                 fullName,
                 phone,
                 birthday: parsedBirthday,
-                email_verified: false
+                email_verified: false,
             },
         });
 
@@ -137,7 +137,7 @@ export class AuthService {
 
         this.setCookie(res, refreshToken, new Date(Date.now() + 1000 * 60 * 60 * 24 * 7));
 
-        return { accessToken };
+        return { accessToken, userId: id };
     }
 
     private generateTokens(id: string) {

@@ -4,13 +4,13 @@ export class CreateAttendanceDto{
     @IsString({message: ('группа должна быть строкой')})
     groupId: string
 
-    @IsNumber({}, {message: ('номер урока должен быть числом')})
-    lessonNumber: number
+    @IsString( {message: ('номер урока должен быть числом')})
+    lessonNumberId: string
 
     @IsArray()
     userIds: string[]
 
-    @IsOptional()
-    @IsBoolean()
-    is_on_lesson: boolean
+    @IsArray()
+    @IsBoolean({ each: true })
+    is_on_lesson: boolean[];
 }

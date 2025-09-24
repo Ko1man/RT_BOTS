@@ -18,16 +18,19 @@ model Group {
   attendances  Attendance[]
 
   @@map("groups")
+  
 }
 
 model UserGroup {
   id      String @id @default(uuid())
 
-  user    User   @relation(fields: [userId], references: [id])
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  String
 
-  group   Group  @relation(fields: [groupId], references: [id])
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId String
+
+  Schedule Schedule[]
 
   @@unique([userId, groupId]) // чтобы не дублировались
   @@map("user_groups")
@@ -48,7 +51,7 @@ model User{
 
   groups UserGroup[]
 
-  news     News?   @relation(fields: [newsID], references: [id])
+  news     News?   @relation(fields: [newsID], references: [id], onDelete: Cascade)
   newsID   String? 
 
   attendances  Attendance[]
@@ -83,16 +86,31 @@ model Attendance{
 
   userId      String
   groupId     String
-  lessonNumber Int
+  lessonNumberId String?
 
-  user         User   @relation(fields: [userId], references: [id])
-  group        Group  @relation(fields: [groupId], references: [id])
-
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group        Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  lessonNumber LessonNumber? @relation(fields: [lessonNumberId], references: [id], onDelete: Cascade)
 
   updatedAt DateTime @default(now()) @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@unique([userId, groupId])
+  @@unique([userId, groupId, lessonNumberId])
+  
+}
+
+model LessonNumber{
+  id String @id @unique @default(uuid())
+
+  lessonNumber String
+  shift String
+
+  Attendance Attendance[]
+  attendanceId String?
+
+  updatedAt DateTime @default(now()) @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
 }
 
 model VerificationCode {
@@ -104,6 +122,25 @@ model VerificationCode {
   used      Boolean  @default(false)
 
   @@index([email])
+}
+
+model DayOfWeek {
+  id       Int        @id @default(autoincrement())
+  name     String     // Понедельник, Вторник и т.д.
+  schedule Schedule[]
+}
+
+model Schedule {
+  id        Int       @id @default(autoincrement())
+  subject   String
+  startTime DateTime
+  endTime   DateTime
+
+  group   UserGroup  @relation(fields: [groupId], references: [id])
+  groupId String
+
+  day     DayOfWeek @relation(fields: [dayId], references: [id])
+  dayId   Int
 }
 
 enum ROLE{

@@ -8,6 +8,9 @@ import { NewsModule } from './news/news.module';
 import { AttendenceModule } from './attendence/attendence.module';
 import { FileModule } from './file/file.module';
 import { MailerModule } from './mailer/mailer.module';
+import { LessonNumberModule } from './lesson-number/lesson-number.module';
+import { DayOfWeekModule } from './day-of-week/day-of-week.module';
+import { ScheduleModule } from './schedule/schedule.module';
 
 @Module({
     imports: [
@@ -20,6 +23,9 @@ import { MailerModule } from './mailer/mailer.module';
         AttendenceModule,
         FileModule,
         MailerModule,
+        LessonNumberModule,
+        DayOfWeekModule,
+        ScheduleModule,
     ],
     controllers: [],
     providers: [],

@@ -3,6 +3,19 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { AddUsersToGroupDto } from './dto/addUsers.dto';
 import { ROLE } from '@prisma/client';
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
+import { GetAttendanceDto } from './dto/get-info-attendance.dto';
+
+export interface AttendanceStatus {
+    userId: string;
+    isOnLesson: boolean;
+}
+
+export interface LessonAttendance {
+    lessonNumber: number;
+    hasAttendanceData: boolean;
+    attendances: AttendanceStatus[];
+}
 
 @Injectable()
 export class GroupService {
@@ -51,9 +64,9 @@ export class GroupService {
             where: { id },
             include: {
                 users: {
-                    include :{
-                        user: true
-                    }
+                    include: {
+                        user: true,
+                    },
                 },
                 attendances: true,
             },

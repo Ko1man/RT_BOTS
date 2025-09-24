@@ -1,17 +1,15 @@
-import { Type } from 'class-transformer';
-import { IsArray, IsString, ArrayNotEmpty, IsBoolean, IsNumber, IsInt } from 'class-validator';
+import { IsArray, IsString, ArrayNotEmpty, IsBoolean } from 'class-validator';
 
 export class UpdateAttendanceDto {
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  userIds: string[];
+    @IsArray()
+    @ArrayNotEmpty()
+    @IsString({ each: true })
+    userIds: string[];
 
-  @IsInt()
-  @Type(() => Number)
-  lessonNumber: number;
+    @IsString()
+    lessonNumberId: string;
 
-  @IsArray()
-  @IsBoolean({ each: true })
-  attendanceStatuses: boolean[];
+    @IsArray()
+    @IsBoolean({ each: true })
+    attendanceStatuses: boolean[];
 }

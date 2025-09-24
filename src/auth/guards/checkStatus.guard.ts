@@ -22,9 +22,7 @@ export class CheckStatusGuard implements CanActivate {
             throw new ForbiddenException('Пользователь не найден');
         }
 
-        if (user.on_check === 'REJECTED') {
-            throw new ForbiddenException('Ваша заявка на регистрацию отклонена');
-        } else if (user.on_check !== 'APPROVED') {
+        if (user.on_check !== 'APPROVED') {
             throw new ForbiddenException('Ваш аккаунт на рассмотрении');
         }
 

@@ -8,7 +8,6 @@ import {
     Patch,
     Body,
     Get,
-    ForbiddenException,
     Param,
     UseGuards,
     Query,
@@ -16,13 +15,13 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
 import { avatarMulterOptions } from 'src/utils/fileUpload.util';
-import { Auth } from 'src/decorators/auth.decorator';
 import { CurrentUser } from 'src/decorators/cureentUser.decorator';
 import { UpdateUserDto } from './dto/updateUser.dto';
-import { OnCheck } from 'src/decorators/onCheck.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guuard';
 import { CheckStatusGuard } from 'src/auth/guards/checkStatus.guard';
 import { ROLE } from '@prisma/client';
+import { FilterUsersDto } from './dto/filter-users.dto';
+import { UpdateUserStatusDto } from './dto/update-status.dto';
 
 @Controller('user')
 export class UserController {
@@ -74,30 +73,6 @@ export class UserController {
         return this.usersService.getAll();
     }
 
-
-    @UseGuards(JwtAuthGuard, CheckStatusGuard)
-    @Get('on-check')
-    async getPendingUsers(@CurrentUser('role') role: string) {
-        if (role != 'ADMIN') {
-            throw new ForbiddenException('У вас нет прав доступа, обратитесь к администратору');
-        }
-
-        return this.usersService.getPendingStatus();
-    }
-
-    @UseGuards(JwtAuthGuard, CheckStatusGuard)
-    @Post('review/:id')
-    async reviewUser(
-        @CurrentUser('role') role: string,
-        @Param('id') id: string,
-        @Body('status') status: 'APPROVED' | 'REJECTED',
-    ) {
-        if (role !== 'ADMIN') {
-            throw new ForbiddenException('У вас нет прав доступа, обратитесь к администратору');
-        }
-        return this.usersService.reviewUsers(id, status);
-    }
-
     @Get('search-users')
     async searchUsers(
         @Query('q') q: string,
@@ -112,5 +87,15 @@ export class UserController {
     @Get('get-user/:id')
     async getUserById(@Param('id') id: string) {
         return this.usersService.getUserById(id);
+    }
+
+    @Get('pending')
+    async getPendingUsers(@Query() query: FilterUsersDto) {
+        return this.usersService.getPendingUsersWithFilter(query);
+    }
+
+    @Post('status')
+    async updateStatus(@Body() dto: UpdateUserStatusDto) {
+        return this.usersService.updateUserStatus(dto);
     }
 }

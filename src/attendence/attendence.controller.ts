@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { AttendenceService } from './attendence.service';
 import { CreateAttendanceDto } from './dto/createAttendence.dto';
 import { DeleteAttendanceDto } from './dto/deleteAtt.dto';
 import { UpdateAttendanceDto } from './dto/updateAttendance.dto';
+import { GetAttendanceDto } from 'src/group/dto/get-info-attendance.dto';
 
 @Controller('attendence')
 export class AttendenceController {
@@ -16,10 +17,10 @@ export class AttendenceController {
     @Get('by-lesson/:groupId/:lessonNumberId/:date')
     async getAttendanceByLesson(
         @Param('groupId') groupId: string,
-        @Param('lessonNumberId') lessonNumber: number,
+        @Param('lessonNumberId') lessonNumberId: string,
         @Param('date') date: string,
     ) {
-        return this.attendenceService.getAttendanceByLesson(groupId, lessonNumber, date);
+        return this.attendenceService.getAttendanceByLesson(groupId, lessonNumberId, date);
     }
 
     @Post('create')
@@ -40,5 +41,9 @@ export class AttendenceController {
     @Post('upsert/:groupId')
     async upsertAttendance(@Param('groupId') groupId: string, @Body() dto: UpdateAttendanceDto) {
         return this.attendenceService.upsertAttendance(groupId, dto);
+    }
+    @Get('get-info-by-group')
+    async getAttendanceByGroup(@Query() dto: GetAttendanceDto) {
+        return this.attendenceService.getAttendance(dto);
     }
 }
